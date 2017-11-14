@@ -55,6 +55,13 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
       return 1;
     }
     else{
+	    char path_res[5][100]={
+		    "/usr/local/bin/","/usr/bin/","/bin/", "/user/sbin/","/sbin/"
+	    };
+
+	    char command_pointer[100];
+		
+	    strcpy(command_pointer, com->argv[0]);
 
 	   int  background=0;
 
@@ -73,10 +80,28 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 		   
 	    }
 	    else if(child_p==0){
+	
+
 		    pid=getpid();
-		    execv(com->argv[0],com->argv);
+		   if(execv(com->argv[0],com->argv)==-1){
+
+		    for(int i=0;i<5;i++){
+			    if(execv(com->argv[0],com->argv)==-1){
+					    strcat(path_res[i],com->argv[0]);
+					    com->argv[0]=path_res[i];
+					    if(execv(com->argv[0],com->argv)==-1){
+						    com->argv[0]=command_pointer;
+							    }
+		
+
+					    }
+		    }
+
+		   
+	
 		    fprintf(stderr, "%s: command not found\n", com->argv[0]);
 		    return 1;
+		    }
 	    }
 	    else{
 		    if(background){
@@ -89,7 +114,7 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 	    }
 	    
 	  
-	    return 0;
+	 //   return 0;
     }
   }
   return 0;
