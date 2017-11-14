@@ -56,13 +56,20 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
     }
     else{
 
+	   int  background=0;
+
 	    pid_t child_p, pid;
 	    int child_status;
 
 	    child_p=fork();
 
+	    if(!strcmp(com->argv[com->argc-1],"&")){
+		    com->argv[com->argc-1]=NULL;
+		    background=1;
+	    }
+
 	    if(child_p<0){
-		    exit(1);
+		    exit(1);//fork fail
 		   
 	    }
 	    else if(child_p==0){
@@ -72,8 +79,13 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 		    return 1;
 	    }
 	    else{
-		   pid= wait(&child_status);
-		 
+		    if(background){
+			    printf("%d\n",pid);
+		    }
+
+		    else{
+			    pid= wait(&child_status);
+		    }
 	    }
 	    
 	  
